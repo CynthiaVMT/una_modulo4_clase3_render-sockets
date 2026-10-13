@@ -1,0 +1,18 @@
+# Dependencias
+node_modules
+node_modules/
+
+# Variables de entorno (secretos: JWT_SECRET, etc.)
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema macOS
+.DS_Store
+
+# Archivos temporales
+*.tmp
+*.swp

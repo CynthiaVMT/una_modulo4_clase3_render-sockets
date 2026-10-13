@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backoffice · Mundo de Golosinas</title>
+<style>
+  :root{--chicle:#ff8fb7;--chicle-f:#ff4f8f;--menta:#6ee7c2;--tinta:#4a3550;--crema:#fff7ef;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Avenir Next","Nunito",system-ui,sans-serif;}
+  body{min-height:100vh;background:radial-gradient(circle at 50% 0%,#ff9ece,#8a4fd0 75%,#2a2350);color:var(--tinta);padding:28px;}
+  .card{max-width:760px;margin:0 auto;background:var(--crema);border:2px solid #fff;border-radius:24px;box-shadow:0 22px 54px rgba(74,53,80,.35);overflow:hidden;}
+  header{background:linear-gradient(90deg,#ffd9e7,var(--chicle));color:var(--tinta);padding:16px 22px;border-bottom:3px solid #fff;display:flex;justify-content:space-between;align-items:center;}
+  header h1{font-size:19px;}
+  header .tag{font-size:11px;opacity:.85;}
+  #auth{display:flex;flex-direction:column;gap:13px;max-width:430px;margin:40px auto;padding:26px;}
+  #auth h2{color:var(--tinta);}
+  .creds{background:#fff;border:2px solid var(--chicle);border-radius:14px;padding:11px;font-size:13px;line-height:1.7;}
+  .creds b{color:var(--chicle-f);}
+  input[type=text],input[type=password],input[type=color]{width:100%;padding:11px;border:2px solid #ffd9e7;border-radius:12px;font-size:14px;background:#fff;}
+  input[type=color]{height:46px;padding:4px;}
+  label{font-size:11px;letter-spacing:.05em;color:#9b7fa4;font-weight:700;text-transform:uppercase;}
+  button{padding:11px 16px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--chicle),var(--chicle-f));color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+  button:hover{transform:translateY(-1px);}
+  button.ghost{background:#ffe8f1;color:var(--tinta);}
+  .err{color:#d23c6e;min-height:16px;font-size:12px;}
+  .hidden{display:none!important;}
+  #panel{padding:20px;}
+  .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .tabs button.on{outline:3px solid var(--chicle);}
+  section{background:#fff;border:2px solid #ffd9e7;border-radius:18px;padding:16px;}
+  .row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 6px;border-bottom:1px dashed rgba(139,107,149,.3);}
+  .row b{font-size:13px;}
+  .row .hex{font-size:11px;color:#9b7fa4;}
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#ffe8f1;border-radius:14px;padding:14px;}
+  .form .full{grid-column:span 2;}
+  .md{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .md .mini label{font-size:11px;}
+  .md input[type=color]{width:100%;}
+  .md input[type=number],.md input[type=checkbox]{width:100%;}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;}
+  .chk input{width:18px;height:18px;accent-color:var(--chicle);}
+  .nota{font-size:12px;color:#9b7fa4;line-height:1.45;margin-bottom:12px;}
+  .mingrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .mincard{background:#ffe8f1;border:2px solid #fff;border-radius:16px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 3px 8px rgba(120,60,100,.12);}
+  .minimg{width:104px;height:104px;border-radius:12px;display:grid;place-items:center;
+    background:conic-gradient(#fff 25%,#eadbe6 0 50%,#fff 0 75%,#eadbe6 0) 0 0/16px 16px;} /* damero: se nota la transparencia */
+  .minimg img{width:96px;height:96px;object-fit:contain;display:block;}
+  .mincard b{font-size:13px;}
+  .minbtns{display:flex;gap:6px;}
+  .minbtns button{padding:7px 10px;font-size:12px;border-radius:12px;white-space:nowrap;}
+  .minbtns button.ghost{background:#fff;border:2px solid #ffd9e7;}
+  .minbtns button:disabled{opacity:.45;cursor:default;transform:none;}
+</style>
+</head>
+<body>
+<div class="card">
+  <header>
+    <div><h1>🍭 Mundo de Golosinas</h1><div class="tag">Panel de la Director Dulcera</div></div>
+    <button id="logout" class="ghost hidden">Salir</button>
+  </header>
+
+  <div id="auth">
+    <h2>Acceso</h2>
+    <div class="creds"><b>Directora:</b> directora@golosinas.com · admin123<br><b>Dulcero:</b> dulcero@golosinas.com · espectador123</div>
+    <label>Email</label><input id="email" value="directora@golosinas.com">
+    <label>Contraseña</label><input id="pass" type="password" value="admin123">
+    <button id="loginBtn">Entrar</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="tabs">
+      <button class="on" data-v="mundo">Mundo</button>
+      <button data-v="paleta">Paleta</button>
+      <button data-v="golosinas">Golosinas</button>
+      <button data-v="miniaturas">Miniaturas</button>
+    </div>
+
+    <section id="v-mundo">
+      <h3 style="margin-bottom:10px">🌍 Estado compartido del mundo</h3>
+      <div class="md">
+        <div class="mini"><label>Hora del día</label><input type="number" id="m_hora" min="0" max="24" step="0.1"></div>
+        <div class="mini"><label>Brillo</label><input type="number" id="m_brillo" min="0.2" max="2" step="0.05"></div>
+        <div class="mini"><label>Velocidad avión</label><input type="number" id="m_avionVel" min="0.6" max="3.2" step="0.05"></div>
+        <div class="mini chk" style="align-items:start"><label>Avioncito volando</label><input type="checkbox" id="m_avionAct"></div>
+        <div class="mini chk" style="align-items:start"><label>Girar isla</label><input type="checkbox" id="m_girar"></div>
+      </div>
+      <button id="saveMundo" style="margin-top:10px">Guardar estado</button>
+    </section>
+
+    <section id="v-paleta" class="hidden">
+      <h3 style="margin-bottom:10px">🎨 Paleta colaborativa (casita y árboles)</h3>
+      <div id="paletaRows"></div>
+      <div class="form">
+        <input type="text" id="pk_nombre" placeholder="Etiqueta"><input type="color" id="pk_color" value="#ff8fb7">
+        <button class="ghost full" type="button" id="addPaleta">Editar una copa/techo (etiqueta que ya existe)</button>
+      </div>
+    </section>
+
+    <section id="v-miniaturas" class="hidden">
+      <h3 style="margin-bottom:6px">🖼 Miniaturas del panel de golosinas</h3>
+      <p class="nota">Son las imágenes de los botones del panel izquierdo del mundo. Subí un PNG (de preferencia cuadrado y con fondo transparente, ~144×144 px; entre 32 y 1024 px y hasta 500 KB). El cambio se ve al instante para todos los usuarios conectados.</p>
+      <div class="mingrid" id="minGrid"></div>
+      <div class="err" id="minErr" style="margin-top:10px"></div>
+    </section>
+
+    <section id="v-golosinas" class="hidden">
+      <h3 style="margin-bottom:10px">🍬 Catálogo (CRUD)</h3>
+      <div id="golRows"></div>
+      <div class="form">
+        <input type="text" id="gol_nombre" placeholder="Nombre (ej: Techo de Frutilla)">
+        <input type="color" id="gol_color" value="#ff8fb7">
+        <button class="full" type="button" id="addGol">Agregar golosina</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const S={token:null};
+async function api(p,m='GET',b=null){const o={method:m,headers:{Authorization:'Bearer '+S.token}};if(b){o.headers['Content-Type']='application/json';o.body=JSON.stringify(b);}const r=await fetch(p,o);if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||r.status);}return r.json();}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function setInputs(id,obj){for(const k in obj){const el=document.getElementById(id+k); if(el) el.value=Number.isNaN(Number(obj[k]))?obj[k]:obj[k]; }}
+document.getElementById('loginBtn').onclick=async()=>{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('pass').value})});const d=await r.json();if(!r.ok)return document.getElementById('err').textContent=d.error||'Error';S.token=d.token;if(d.usuario.rol!=='admin'){alert('El backoffice es solo para la Directora.');return;}localStorage.setItem('gol_token',S.token);ver();};
+document.getElementById('logout').onclick=()=>{localStorage.removeItem('gol_token');location.reload();};
+function ver(){document.getElementById('auth').classList.add('hidden');document.getElementById('panel').classList.remove('hidden');document.getElementById('logout').classList.remove('hidden');cargarMundo();cargarPaleta();cargarGol();cargarMin();}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('#panel section').forEach(s=>s.classList.add('hidden'));document.getElementById('v-'+b.dataset.v).classList.remove('hidden');});
+async function cargarMundo(){const m=await api('/api/admin/mundo');setInputs('m_',{hora:m.hora,brillo:m.brillo});document.getElementById('m_avionVel').value=m.avion.velocidad;document.getElementById('m_avionAct').checked=m.avion.activo;document.getElementById('m_girar').checked=m.girar;}
+document.getElementById('saveMundo').onclick=async()=>{const b={hora:Number(document.getElementById('m_hora').value),brillo:Number(document.getElementById('m_brillo').value)};b.avion={velocidad:Number(document.getElementById('m_avionVel').value),activo:document.getElementById('m_avionAct').checked};b.girar=document.getElementById('m_girar').checked;await api('/api/admin/mundo','PUT',b);alert('Estado del mundo actualizado y propagado.');};
+async function cargarPaleta(){const m=await api('/api/admin/mundo');const rows=document.getElementById('paletaRows');rows.innerHTML=Object.keys(m.paleta).map(cl=>`<div class="row"><b>${esc(cl)}</b><span class="hex">${esc(m.paleta[cl])}</span><input type="color" value="${esc(m.paleta[cl])}" data-cl="${esc(cl)}" onchange="paletaClave(this)"></div>`).join('');}
+async function paletaClave(inp){const cl=inp.dataset.cl;await api('/api/admin/mundo','PUT',{paleta:{[cl]:inp.value}});}
+async function cargarGol(){const gs=await api('/api/admin/golosinas');document.getElementById('golRows').innerHTML=gs.map(g=>`<div class="row"><b>${esc(g.nombre)}</b><span class="hex">${esc(g.valor)}</span><button class="ghost" onclick="borrarGol(${g.id})">✕</button></div>`).join('');}
+async function borrarGol(id){await api('/api/admin/golosinas/'+id,'DELETE');cargarGol();}
+document.getElementById('addGol').onclick=async()=>{await api('/api/admin/golosinas','POST',{nombre:document.getElementById('gol_nombre').value,valor:document.getElementById('gol_color').value});cargarGol();};
+/* ---- miniaturas del panel de golosinas ---- */
+async function cargarMin(){const r=await fetch('/api/miniaturas');const lista=await r.json();
+  document.getElementById('minGrid').innerHTML=lista.map(m=>`<div class="mincard"><div class="minimg"><img src="/thumbs/${esc(m.tipo)}.png?v=${m.v}" alt="${esc(m.nombre)}"></div><b>${esc(m.nombre)}</b><div class="minbtns"><button type="button" onclick="subirMin('${esc(m.tipo)}')">Subir PNG</button><button type="button" class="ghost" onclick="restaurarMin('${esc(m.tipo)}')"${m.original?'':' disabled'}>Restaurar</button></div></div>`).join('');}
+function subirMin(tipo){const inp=document.createElement('input');inp.type='file';inp.accept='image/png';
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;const err=document.getElementById('minErr');err.textContent='';
+    if(f.type!=='image/png')return err.textContent='El archivo debe ser un PNG.';
+    if(f.size>500*1024)return err.textContent='El PNG pesa más de 500 KB.';
+    const data=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f);});
+    try{await api('/api/admin/miniaturas/'+tipo,'PUT',{imagen:data});}catch(e){return err.textContent='No se pudo subir: '+e.message;}
+    cargarMin();};
+  inp.click();}
+async function restaurarMin(tipo){if(!confirm('¿Volver a la miniatura original?'))return;const err=document.getElementById('minErr');err.textContent='';
+  try{await api('/api/admin/miniaturas/'+tipo,'DELETE');}catch(e){return err.textContent='No se pudo restaurar: '+e.message;}
+  cargarMin();}
+(async()=>{const t=localStorage.getItem('gol_token');if(!t)return;try{const d=await (await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+t}})).json();if(d.usuario.rol!=='admin')return;S.token=t;ver();}catch(e){localStorage.removeItem('gol_token');}})();
+</script>
+</body>
+</html>

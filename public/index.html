@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mundo de Golosinas · Colaborativo Kawaii</title>
+<link rel="stylesheet" href="./styles.css" />
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three.module.js",
+  "three/addons/": "./vendor/addons/"
+}}
+</script>
+</head>
+<body>
+
+<div id="escena"></div>
+
+<div id="titulo">
+  <h1>🍭 Mundo de Golosinas</h1>
+  <p>Isla de jengibre · avioncito de confites · colaborativo en tiempo real</p>
+</div>
+
+<!-- cajón lateral de golosinas -->
+<div id="cajon" aria-label="Golosinas para colocar">
+  <div class="cajon-tit">🍬 Golosinas</div>
+  <div class="cajon-grid">
+    <button data-gol="piruleta" title="Piruleta blanca y roja"><img src="./thumbs/piruleta.png" alt="Piruleta"><span>Piruleta</span></button>
+    <button data-gol="gomita" title="Gomita lila"><img src="./thumbs/gomita.png" alt="Gomita"><span>Gomita</span></button>
+    <button data-gol="algodon" title="Algodón de azúcar"><img src="./thumbs/algodon.png" alt="Algodón"><span>Algodón</span></button>
+    <button data-gol="caramelo" title="Pastilla celeste y rosa"><img src="./thumbs/caramelo.png" alt="Pastilla"><span>Pastilla</span></button>
+    <button data-gol="donut" title="Dona con chocolate y chispas"><img src="./thumbs/donut.png" alt="Dona"><span>Dona</span></button>
+    <button data-gol="flor" title="Flor de golosina"><img src="./thumbs/flor.png" alt="Flor"><span>Flor</span></button>
+    <button data-gol="hongo" title="Honguito rojo"><img src="./thumbs/hongo.png" alt="Hongo"><span>Hongo</span></button>
+    <button data-gol="tangulu" title="Tangulu"><img src="./thumbs/tangulu.png" alt="Tangulu"><span>Tangulu</span></button>
+  </div>
+  <div class="cajon-her">
+    <button id="golMover" class="on">✋ Mover</button>
+    <button id="golQuitar">🗑 Quitar</button>
+  </div>
+  <div class="cajon-nota">Tocá una golosina y después hacé clic en la isla para colocarla.</div>
+</div>
+
+<!-- barra superior kawaii -->
+<div id="topbar">
+  <span class="choco">🍬</span>
+  <div class="room"><span class="dot"></span><span id="room">MUNDO-01</span></div>
+  <div class="users" title="Dulceros en línea"><span id="usersCount">0</span> <span>en línea</span></div>
+  <div id="colab" class="colab">⚡ conectando…</div>
+  <span class="choco">🍭</span>
+</div>
+
+<!-- paneles de golosinas -->
+<section id="panel" aria-label="Controles del mundo de golosinas">
+
+  <div class="reloj"><span id="iconoTiempo">☀️</span><span id="reloj">13:00</span></div>
+
+  <div class="grupo" data-titulo="🍭 Cielo y hora">
+    <label class="ctrl"><span class="etiqueta">Hora del día</span>
+      <input id="hora" type="range" min="0" max="24" step="0.02" value="13" /></label>
+    <label class="ctrl"><span class="etiqueta">Ciclo (velocidad)</span>
+      <input id="velocidad" type="range" min="0" max="4" step="0.05" value="0" /></label>
+    <label class="ctrl"><span class="etiqueta">Brillo del sol</span>
+      <input id="brillo" type="range" min="0.2" max="2" step="0.05" value="1" /></label>
+    <div class="presets">
+      <button type="button" data-hora="5.8">🌅 Amanecer</button>
+      <button type="button" data-hora="12.8">☀️ Mediodía</button>
+      <button type="button" data-hora="17.8">🌇 Atardecer</button>
+      <button type="button" data-hora="23.6">🌙 Noche</button>
+    </div>
+  </div>
+
+  <div class="grupo" data-titulo="✈️ Avioncito de confites">
+    <label class="check"><input id="planAct" type="checkbox" checked /> avioncito volando</label>
+    <label class="ctrl"><span class="etiqueta">Velocidad del avión</span>
+      <input id="planVel" type="range" min="0.6" max="3.2" step="0.05" value="1.6" /></label>
+    <div class="bota"><button id="btnConf" type="button">🎊 TIRAR CONFITES</button></div>
+  </div>
+
+  <div class="grupo" data-titulo="🎨 Casita de jengibre y árboles">
+    <div class="mini" title="Techo de la casita, líneas de la piruleta y sombrero del hongo"><span>🍓 Rojo frutilla</span><input type="color" data-pk="techo_frutilla" value="#e0213d"></div>
+    <div class="mini" title="Glaseado de la casita"><span>☃️ Glaseado</span><input type="color" data-pk="glaseado" value="#fff6e8"></div>
+    <div class="mini" title="Paredes de la casita"><span>🏚 Pared</span><input type="color" data-pk="pared" value="#ffdfc9"></div>
+    <div class="mini" title="Pastilla, flor, tangulu y chispas del donut"><span>🌸 Rosa chicle</span><input type="color" data-pk="chicle" value="#ff8fb7"></div>
+    <div class="mini" title="Chispas del donut"><span>🌿 Menta</span><input type="color" data-pk="menta" value="#6ee7c2"></div>
+    <div class="mini" title="Centro de la flor, bolita del tangulu y chispas del donut"><span>🍋 Amarillo limón</span><input type="color" data-pk="limon" value="#ffdd55"></div>
+    <div class="mini" title="Conito de la gomita"><span>💜 Lila</span><input type="color" data-pk="lila" value="#c8a8ff"></div>
+    <div class="mini" title="Naranja del mundo"><span>🟠 Naranja</span><input type="color" data-pk="naranja" value="#ffb04d"></div>
+  </div>
+
+  <div class="pie">
+    <label class="check"><input id="girar" type="checkbox" checked /> girar la isla</label>
+    <span class="pista">arrastrá para orbitar · rueda para acercar · <a href="/backoffice" style="color:#8b6b95">Backoffice →</a></span>
+  </div>
+</section>
+
+<div id="carga">
+  <div class="tarjeta">
+    <div class="spinner"></div>
+    <p id="cargaTexto">Cargando el mundo de golosinas…</p>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

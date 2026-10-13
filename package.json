@@ -1,0 +1,15 @@
+{
+  "name": "mundo-golosinas-colaborativo",
+  "version": "1.0.0",
+  "description": "Mundo de golosinas kawaii colaborativo en tiempo real: casita de jengibre, arboles de malvaviscos y avioncito que tira confites (Three.js + Express + Socket.io + backoffice).",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.8.1"
+  }
+}

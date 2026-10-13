@@ -17,7 +17,11 @@ const PORT = Number(process.env.PORT) || 3200;
 
 /* ============ POSTGRESQL (capturas de diseños) ============ */
 const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/golosinas' });
+const dbUrl = process.env.DATABASE_URL || 'postgres://localhost:5432/golosinas';
+const pool = new Pool({
+  connectionString: dbUrl,
+  ssl: /localhost|127\.0\.0\.1/.test(dbUrl) ? false : { rejectUnauthorized: false } // Render exige SSL
+});
 let pgOk = false;
 async function initPg(){
   try{

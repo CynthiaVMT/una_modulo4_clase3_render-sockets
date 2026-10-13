@@ -74,6 +74,7 @@
       <button data-v="paleta">Paleta</button>
       <button data-v="golosinas">Golosinas</button>
       <button data-v="miniaturas">Miniaturas</button>
+      <button data-v="capturas">Capturas</button>
     </div>
 
     <section id="v-mundo">
@@ -113,6 +114,13 @@
         <button class="full" type="button" id="addGol">Agregar golosina</button>
       </div>
     </section>
+
+    <section id="v-capturas" class="hidden">
+      <h3 style="margin-bottom:6px">📸 Capturas guardadas (PostgreSQL)</h3>
+      <p class="nota">Diseños que los usuarios guardaron desde el mundo. Se conservan en la base de datos aunque se reinicie el servidor.</p>
+      <div class="mingrid" id="capGrid"></div>
+      <div class="err" id="capErr" style="margin-top:10px"></div>
+    </section>
   </div>
 </div>
 
@@ -123,7 +131,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function setInputs(id,obj){for(const k in obj){const el=document.getElementById(id+k); if(el) el.value=Number.isNaN(Number(obj[k]))?obj[k]:obj[k]; }}
 document.getElementById('loginBtn').onclick=async()=>{const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('pass').value})});const d=await r.json();if(!r.ok)return document.getElementById('err').textContent=d.error||'Error';S.token=d.token;if(d.usuario.rol!=='admin'){alert('El backoffice es solo para la Directora.');return;}localStorage.setItem('gol_token',S.token);ver();};
 document.getElementById('logout').onclick=()=>{localStorage.removeItem('gol_token');location.reload();};
-function ver(){document.getElementById('auth').classList.add('hidden');document.getElementById('panel').classList.remove('hidden');document.getElementById('logout').classList.remove('hidden');cargarMundo();cargarPaleta();cargarGol();cargarMin();}
+function ver(){document.getElementById('auth').classList.add('hidden');document.getElementById('panel').classList.remove('hidden');document.getElementById('logout').classList.remove('hidden');cargarMundo();cargarPaleta();cargarGol();cargarMin();cargarCap();}
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('#panel section').forEach(s=>s.classList.add('hidden'));document.getElementById('v-'+b.dataset.v).classList.remove('hidden');});
 async function cargarMundo(){const m=await api('/api/admin/mundo');setInputs('m_',{hora:m.hora,brillo:m.brillo});document.getElementById('m_avionVel').value=m.avion.velocidad;document.getElementById('m_avionAct').checked=m.avion.activo;document.getElementById('m_girar').checked=m.girar;}
 document.getElementById('saveMundo').onclick=async()=>{const b={hora:Number(document.getElementById('m_hora').value),brillo:Number(document.getElementById('m_brillo').value)};b.avion={velocidad:Number(document.getElementById('m_avionVel').value),activo:document.getElementById('m_avionAct').checked};b.girar=document.getElementById('m_girar').checked;await api('/api/admin/mundo','PUT',b);alert('Estado del mundo actualizado y propagado.');};
@@ -146,6 +154,11 @@ function subirMin(tipo){const inp=document.createElement('input');inp.type='file
 async function restaurarMin(tipo){if(!confirm('¿Volver a la miniatura original?'))return;const err=document.getElementById('minErr');err.textContent='';
   try{await api('/api/admin/miniaturas/'+tipo,'DELETE');}catch(e){return err.textContent='No se pudo restaurar: '+e.message;}
   cargarMin();}
+/* ---- capturas guardadas en PostgreSQL ---- */
+async function cargarCap(){const err=document.getElementById('capErr');err.textContent='';
+  try{const cs=await api('/api/capturas');
+    document.getElementById('capGrid').innerHTML = cs.length ? cs.map(c=>`<div class="mincard"><div class="minimg"><img src="${c.imagen}" alt="captura ${c.id}" style="object-fit:cover"></div><b>#${c.id} · ${esc(c.usuario_nombre)}</b><div class="hex">${new Date(c.creado).toLocaleString('es-AR')}</div></div>`).join('') : '<p class="nota">Todavía no hay capturas guardadas.</p>';
+  }catch(e){err.textContent='No se pudieron cargar: '+e.message;}}
 (async()=>{const t=localStorage.getItem('gol_token');if(!t)return;try{const d=await (await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+t}})).json();if(d.usuario.rol!=='admin')return;S.token=t;ver();}catch(e){localStorage.removeItem('gol_token');}})();
 </script>
 </body>

@@ -28,7 +28,7 @@ function cieloEnHora(hora){ let i=0; while(i<CLAVES.length-2 && hora>CLAVES[i+1]
     solI:THREE.MathUtils.lerp(a.solI,b.solI,s), amb:THREE.MathUtils.lerp(a.amb,b.amb,s), estrellas:THREE.MathUtils.lerp(a.estrellas,b.estrellas,s) }; }
 
 const contenedor=document.getElementById("escena");
-const renderer=new THREE.WebGLRenderer({ antialias:true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+const renderer=new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true }); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 renderer.setSize(window.innerWidth, window.innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.12; renderer.outputColorSpace=THREE.SRGBColorSpace;
 contenedor.appendChild(renderer.domElement);
@@ -333,3 +333,33 @@ encuadrar(); actualizarCielo(); animar();
 
 /* expuesto */
 window.golSetPaleta=aplicarPaleta; window.golTirarConfites=(n)=>tirarConfites(n);
+/* ================= sesión + captura de diseño (PostgreSQL) ================= */
+(()=>{
+  const form=document.getElementById("loginForm"), activa=document.getElementById("sesActiva");
+  const msgL=document.getElementById("loginMsg"), msgC=document.getElementById("capMsg");
+  let token=null;
+  form.addEventListener("submit", async (ev)=>{
+    ev.preventDefault(); msgL.textContent="entrando…";
+    try{
+      const r=await fetch("/api/auth/login",{ method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ email:document.getElementById("loginEmail").value, password:document.getElementById("loginPass").value }) });
+      const d=await r.json();
+      if(!r.ok){ msgL.textContent=d.error||"no se pudo entrar"; return; }
+      token=d.token;
+      document.getElementById("sesNombre").textContent=d.usuario.nombre;
+      form.hidden=true; activa.hidden=false;
+    }catch{ msgL.textContent="error de conexión"; }
+  });
+  document.getElementById("btnCaptura").addEventListener("click", async ()=>{
+    if(!token) return;
+    msgC.textContent="guardando…";
+    try{
+      renderer.render(escena,camara); // asegura el frame actual en el buffer
+      const imagen=renderer.domElement.toDataURL("image/png");
+      const r=await fetch("/api/capturas",{ method:"POST", headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+token },
+        body:JSON.stringify({ imagen }) });
+      const d=await r.json();
+      msgC.textContent = r.ok ? ("✔ captura #"+d.id+" guardada en PostgreSQL") : (d.error||"no se pudo guardar");
+    }catch{ msgC.textContent="error de conexión"; }
+  });
+})();

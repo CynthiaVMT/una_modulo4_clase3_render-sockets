@@ -94,6 +94,22 @@
   </div>
 </section>
 
+<!-- sesión + captura de diseño (PostgreSQL) -->
+<div id="sesion">
+  <form id="loginForm" autocomplete="off">
+    <div class="ses-tit">📸 Guardar mi diseño</div>
+    <input id="loginEmail" type="email" placeholder="email" required>
+    <input id="loginPass" type="password" placeholder="contraseña" required>
+    <button type="submit">Entrar</button>
+    <div class="ses-msg" id="loginMsg"></div>
+  </form>
+  <div id="sesActiva" hidden>
+    <div class="ses-tit">👋 <span id="sesNombre"></span></div>
+    <button id="btnCaptura" type="button">📸 Guardar captura</button>
+    <div class="ses-msg" id="capMsg"></div>
+  </div>
+</div>
+
 <div id="carga">
   <div class="tarjeta">
     <div class="spinner"></div>

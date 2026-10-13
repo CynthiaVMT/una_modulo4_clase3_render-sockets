@@ -15,6 +15,24 @@ const io = new Server(server, { cors: { origin: '*', methods: ['GET','POST','PUT
 const JWT_SECRET = process.env.JWT_SECRET || 'golosinas_secreto';
 const PORT = Number(process.env.PORT) || 3200;
 
+/* ============ POSTGRESQL (capturas de diseños) ============ */
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/golosinas' });
+let pgOk = false;
+async function initPg(){
+  try{
+    await pool.query(`CREATE TABLE IF NOT EXISTS capturas(
+      id SERIAL PRIMARY KEY,
+      usuario_id INT NOT NULL,
+      usuario_nombre TEXT NOT NULL,
+      imagen TEXT NOT NULL,
+      creado TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`);
+    pgOk = true; console.log('🐘 PostgreSQL conectado (tabla capturas lista)');
+  }catch(e){ pgOk=false; console.warn('⚠️  PostgreSQL no disponible, capturas desactivadas:', e.message); }
+}
+initPg();
+
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
@@ -135,6 +153,29 @@ app.delete('/api/admin/miniaturas/:tipo', auth, adminOnly, (req,res)=>{
   const o=path.join(DIR_ORIG,t+'.png'); if(!fs.existsSync(o)) return res.status(404).json({error:'No hay miniatura original guardada'});
   fs.copyFileSync(o,path.join(DIR_THUMBS,t+'.png'));
   const v=Date.now(); io.emit('miniaturas',{ tipo:t, v }); res.json({ tipo:t, v });
+});
+
+/* ============ CAPTURAS DE DISEÑOS (PostgreSQL, requiere login) ============ */
+app.post('/api/capturas', auth, async (req,res)=>{
+  if(!pgOk) return res.status(503).json({error:'Base de datos no disponible'});
+  const m=/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(String((req.body||{}).imagen||''));
+  if(!m) return res.status(400).json({error:'Se espera un PNG (data URL en base64)'});
+  if(m[1].length > 14*1024*1024) return res.status(413).json({error:'La captura es demasiado pesada'});
+  try{
+    const r = await pool.query(
+      'INSERT INTO capturas(usuario_id,usuario_nombre,imagen) VALUES($1,$2,$3) RETURNING id,creado',
+      [req.usuario.id, req.usuario.nombre, m[0]]);
+    res.status(201).json(r.rows[0]);
+  }catch(e){ res.status(500).json({error:'No se pudo guardar la captura'}); }
+});
+app.get('/api/capturas', auth, async (req,res)=>{
+  if(!pgOk) return res.status(503).json({error:'Base de datos no disponible'});
+  try{
+    const r = req.usuario.rol==='admin'
+      ? await pool.query('SELECT id,usuario_id,usuario_nombre,imagen,creado FROM capturas ORDER BY id DESC LIMIT 50')
+      : await pool.query('SELECT id,usuario_id,usuario_nombre,imagen,creado FROM capturas WHERE usuario_id=$1 ORDER BY id DESC LIMIT 50', [req.usuario.id]);
+    res.json(r.rows);
+  }catch(e){ res.status(500).json({error:'No se pudieron leer las capturas'}); }
 });
 
 app.get('/api/health', (req,res)=>res.json({status:'online', servicio:'Mundo de Golosinas Colaborativo'}));

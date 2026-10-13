@@ -136,3 +136,23 @@ input[type="range"]::-moz-range-thumb{ width:23px; height:23px; border-radius:50
   background:linear-gradient(180deg,#fff,#ffe8f1); cursor:pointer; }
 .cajon-her button.on{ outline:2px solid var(--chicle); background:#ffd9e7; }
 .cajon-nota{ font-size:10.5px; color:#9b7fa4; line-height:1.35; }
+/* ---------- sesión + captura de diseño ---------- */
+#sesion{
+  position:fixed; left:18px; bottom:18px; width:230px; z-index:6;
+  background:var(--panel); backdrop-filter:blur(12px) saturate(1.2);
+  border:2px solid var(--borde); border-radius:20px; box-shadow:var(--sombra);
+  padding:12px 14px;
+}
+#sesion .ses-tit{ font-size:13px; font-weight:800; color:#a06b9b; margin-bottom:8px; }
+#sesion input{
+  width:100%; box-sizing:border-box; font:inherit; font-size:13px; margin-bottom:6px;
+  padding:7px 10px; border-radius:12px; border:2px solid #fff; background:#fff7fb; color:var(--tinta);
+}
+#sesion button{
+  width:100%; font:inherit; font-size:13px; font-weight:700; color:var(--tinta);
+  padding:8px 5px; border-radius:12px; border:2px solid #fff; cursor:pointer;
+  background:linear-gradient(180deg,#fff,#ffe8f1);
+}
+#sesion button:hover{ background:#ffd9e7; }
+#sesion .ses-msg{ font-size:11px; color:#9b7fa4; margin-top:6px; min-height:12px; }
+@media (max-width:760px){ #sesion{ display:none; } }
